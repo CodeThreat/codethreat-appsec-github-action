@@ -1,0 +1,41 @@
+# Example: Basic CodeThreat Security Scan
+# Add this to .github/workflows/security.yml in your repository
+
+name: Security Scan
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security:
+    name: CodeThreat Security Scan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      security-events: write  # Required for SARIF upload
+      contents: read
+      actions: read
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: CodeThreat Security Scan
+        uses: CodeThreat/codethreat-appsec-github-action@v1
+        with:
+          # Required
+          api-key: ${{ secrets.CODETHREAT_API_KEY }}
+          server-url: ${{ secrets.CODETHREAT_SERVER_URL }}  # e.g., 'http://localhost:3000' or your server
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # Required for SARIF upload
+          
+          # Optional - customize as needed
+          scan-types: 'sast,sca,secrets'
+          fail-on-critical: true
+          fail-on-high: false
+          timeout: 30
+          
+          # GitHub Security tab integration
+          upload-sarif: true
+          output-format: 'sarif'

@@ -1,0 +1,93 @@
+name: CI
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test Action
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Lint
+        run: npm run lint
+      
+      - name: Type Check
+        run: npx tsc --noEmit
+      
+      - name: Test
+        run: npm test
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Check Build Output
+        run: |
+          if [ ! -f "dist/index.js" ]; then
+            echo "Build failed - dist/index.js not found"
+            exit 1
+          fi
+          echo "✅ Build successful - dist/index.js created"
+
+  test-action:
+    name: Test Action Integration
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Test CodeThreat Action (Dry Run)
+        uses: ./
+        with:
+          api-key: 'test-key'
+          wait-for-completion: false
+          upload-sarif: false
+          verbose: true
+        continue-on-error: true  # Expected to fail with test key
+
+  package:
+    name: Package Release
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Build for Release
+        run: npm run package
+      
+      - name: Commit Built Files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add dist/
+          git diff --staged --quiet || git commit -m "Update built action [skip ci]"
+          git push

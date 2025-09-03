@@ -1,0 +1,119 @@
+name: 'CodeThreat Security Scan'
+description: 'Run CodeThreat security analysis and upload results to GitHub Security tab'
+author: 'CodeThreat'
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  # Authentication
+  api-key:
+    description: 'CodeThreat API key'
+    required: true
+  server-url:
+    description: 'CodeThreat server URL'
+    required: true
+  organization-id:
+    description: 'CodeThreat organization ID'
+    required: false
+
+  # Repository configuration
+  repository-url:
+    description: 'Repository URL to scan (defaults to current repository)'
+    required: false
+    default: ${{ github.repositoryUrl }}
+  branch:
+    description: 'Branch to scan'
+    required: false
+    default: ${{ github.ref_name }}
+
+  # Scan configuration
+  scan-types:
+    description: 'Scan types to run (comma-separated: sast,sca,secrets,iac)'
+    required: false
+    default: 'sast,sca,secrets'
+  wait-for-completion:
+    description: 'Wait for scan completion before proceeding'
+    required: false
+    default: 'true'
+  timeout:
+    description: 'Scan timeout in minutes'
+    required: false
+    default: '30'
+  poll-interval:
+    description: 'Status polling interval in seconds'
+    required: false
+    default: '10'
+
+  # Output configuration
+  output-format:
+    description: 'Output format (json, sarif, csv, xml, junit)'
+    required: false
+    default: 'sarif'
+  output-file:
+    description: 'Output file name'
+    required: false
+    default: 'codethreat-results.sarif'
+  upload-sarif:
+    description: 'Automatically upload SARIF to GitHub Security tab'
+    required: false
+    default: 'true'
+
+  # CI/CD behavior
+  fail-on-critical:
+    description: 'Fail the build if critical vulnerabilities are found'
+    required: false
+    default: 'true'
+  fail-on-high:
+    description: 'Fail the build if high severity vulnerabilities are found'
+    required: false
+    default: 'false'
+  max-violations:
+    description: 'Maximum number of violations before failing (0 = no limit)'
+    required: false
+    default: '0'
+
+  # Advanced options
+  skip-import:
+    description: 'Skip repository import if already imported'
+    required: false
+    default: 'true'
+  verbose:
+    description: 'Enable verbose logging'
+    required: false
+    default: 'false'
+  cli-version:
+    description: 'CodeThreat CLI version to use'
+    required: false
+    default: 'latest'
+  github-token:
+    description: 'GitHub token for SARIF upload (pass secrets.GITHUB_TOKEN)'
+    required: false
+
+outputs:
+  scan-id:
+    description: 'ID of the completed scan'
+  repository-id:
+    description: 'ID of the imported repository'
+  results-file:
+    description: 'Path to the results file'
+  violation-count:
+    description: 'Total number of violations found'
+  critical-count:
+    description: 'Number of critical violations'
+  high-count:
+    description: 'Number of high severity violations'
+  medium-count:
+    description: 'Number of medium severity violations'
+  low-count:
+    description: 'Number of low severity violations'
+  security-score:
+    description: 'Security score (0-100)'
+  scan-duration:
+    description: 'Scan duration in seconds'
+  scan-url:
+    description: 'URL to view scan results in CodeThreat dashboard'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

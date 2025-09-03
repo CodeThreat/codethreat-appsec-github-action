@@ -1,0 +1,101 @@
+# Example: Advanced CodeThreat Security Scan with multiple outputs
+# Add this to .github/workflows/security-advanced.yml in your repository
+
+name: Advanced Security Scan
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly scan on Mondays at 2 AM
+
+jobs:
+  security:
+    name: CodeThreat Security Analysis
+    runs-on: ubuntu-latest
+    
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+      pull-requests: write  # For PR comments
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: CodeThreat Security Scan
+        id: codethreat
+        uses: CodeThreat/codethreat-appsec-github-action@v1
+        with:
+          # Authentication
+          api-key: ${{ secrets.CODETHREAT_API_KEY }}
+          server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+          
+          # Scan configuration
+          scan-types: 'sast,sca,secrets,iac'
+          wait-for-completion: true
+          timeout: 45
+          
+          # Build failure conditions
+          fail-on-critical: true
+          fail-on-high: ${{ github.ref == 'refs/heads/main' }}
+          max-violations: ${{ github.ref == 'refs/heads/main' && '0' || '10' }}
+          
+          # Output configuration
+          output-format: 'sarif'
+          upload-sarif: true
+          verbose: ${{ runner.debug == '1' }}
+      
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: codethreat-security-report
+          path: codethreat-results.sarif
+          retention-days: 30
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const scanResults = `
+            ## 🛡️ CodeThreat Security Scan Results
+            
+            **Scan Summary:**
+            - **Total Violations**: ${{ steps.codethreat.outputs.violation-count }}
+            - **Critical**: ${{ steps.codethreat.outputs.critical-count }}
+            - **High**: ${{ steps.codethreat.outputs.high-count }}
+            - **Medium**: ${{ steps.codethreat.outputs.medium-count }}
+            - **Low**: ${{ steps.codethreat.outputs.low-count }}
+            - **Security Score**: ${{ steps.codethreat.outputs.security-score }}/100
+            
+            **Scan Details:**
+            - **Duration**: ${{ steps.codethreat.outputs.scan-duration }}s
+            - **Scan ID**: \`${{ steps.codethreat.outputs.scan-id }}\`
+            
+            [📊 View Detailed Results](${{ steps.codethreat.outputs.scan-url }})
+            
+            > Results are also available in the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning)
+            `;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: scanResults
+            });
+      
+      - name: Create Security Summary
+        if: always()
+        run: |
+          echo "## 🛡️ Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Violations**: ${{ steps.codethreat.outputs.violation-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Critical**: ${{ steps.codethreat.outputs.critical-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **High**: ${{ steps.codethreat.outputs.high-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Score**: ${{ steps.codethreat.outputs.security-score }}/100" >> $GITHUB_STEP_SUMMARY
+          echo "- **Duration**: ${{ steps.codethreat.outputs.scan-duration }}s" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View Results](${{ steps.codethreat.outputs.scan-url }})" >> $GITHUB_STEP_SUMMARY
