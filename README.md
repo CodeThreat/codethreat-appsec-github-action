@@ -24,13 +24,26 @@ on: [push, pull_request]
 jobs:
   security:
     runs-on: ubuntu-latest
+    
+    permissions:
+      security-events: write  # Required for SARIF upload
+      contents: read
+      actions: read
+    
     steps:
       - uses: actions/checkout@v4
       
       - name: CodeThreat Security Scan
         uses: CodeThreat/codethreat-appsec-github-action@v1
         with:
+          # Required
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
+          server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Optional
+          scan-types: 'sast,sca,secrets'
+          upload-sarif: true
 ```
 
 ## Inputs
@@ -45,7 +58,7 @@ jobs:
 
 | Input | Description | Default | Example |
 |-------|-------------|---------|---------|
-| `server-url` | CodeThreat server URL | `https://api.codethreat.com` | `https://your-server.com` |
+| `server-url` | CodeThreat server URL | `https://app.codethreat.com` | `https://your-server.com` |
 | `organization-id` | CodeThreat organization ID | Auto-detected | `org-123` |
 | `repository-url` | Repository URL to scan | Current repository | `https://github.com/user/repo.git` |
 | `branch` | Branch to scan | Current branch | `main` |
@@ -87,7 +100,12 @@ jobs:
 - name: CodeThreat Security Scan
   uses: CodeThreat/codethreat-appsec-github-action@v1
   with:
+    # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
+    server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Optional
     scan-types: 'sast,sca,secrets'
 ```
 
@@ -97,12 +115,21 @@ jobs:
 - name: CodeThreat Security Scan
   uses: CodeThreat/codethreat-appsec-github-action@v1
   with:
+    # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
     server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Scan Configuration
     scan-types: 'sast,sca,secrets,iac'
+    fail-on-critical: true
     fail-on-high: true
     max-violations: 10
     timeout: 45
+    
+    # Output Configuration
+    upload-sarif: true
+    output-format: 'sarif'
     verbose: true
 ```
 
@@ -113,7 +140,12 @@ jobs:
   id: codethreat
   uses: CodeThreat/codethreat-appsec-github-action@v1
   with:
+    # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
+    server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Output Configuration
     output-format: 'json'
     output-file: 'security-report.json'
     upload-sarif: false
@@ -145,7 +177,10 @@ jobs:
   id: security-scan
   uses: CodeThreat/codethreat-appsec-github-action@v1
   with:
+    # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
+    server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
 
 - name: Comment on PR
   if: github.event_name == 'pull_request'
@@ -193,7 +228,7 @@ Go to your repository Settings → Secrets and variables → Actions, and add:
 | Secret Name | Value | Description |
 |-------------|-------|-------------|
 | `CODETHREAT_API_KEY` | `ctk_xxx...` | Your CodeThreat API key |
-| `CODETHREAT_SERVER_URL` | `https://api.codethreat.com` | Server URL (optional) |
+| `CODETHREAT_SERVER_URL` | `https://app.codethreat.com` | Server URL (optional) |
 
 ### 3. Enable GitHub Advanced Security (if needed)
 
@@ -228,7 +263,12 @@ jobs:
       - name: CodeThreat Security Scan
         uses: CodeThreat/codethreat-appsec-github-action@v1
         with:
+          # Required
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
+          server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Configuration
           scan-types: 'sast,sca,secrets'
           fail-on-critical: true
           timeout: 30
@@ -294,8 +334,13 @@ Enable debug logging by adding to your workflow:
 - name: CodeThreat Security Scan
   uses: CodeThreat/codethreat-appsec-github-action@v1
   with:
+    # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
-    verbose: true  # Enable verbose logging
+    server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Enable verbose logging
+    verbose: true
 ```
 
 Or enable runner debug mode:
