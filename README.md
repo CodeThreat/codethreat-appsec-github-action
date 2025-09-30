@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: CodeThreat Security Scan
-        uses: CodeThreat/codethreat-appsec-github-action@v1
+        uses: CodeThreat/codethreat-appsec-github-action@master
         with:
           # Required
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
@@ -100,7 +100,7 @@ jobs:
 
 ```yaml
 - name: CodeThreat Security Scan
-  uses: CodeThreat/codethreat-appsec-github-action@v1
+  uses: CodeThreat/codethreat-appsec-github-action@master
   with:
     # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
@@ -115,7 +115,7 @@ jobs:
 
 ```yaml
 - name: CodeThreat Security Scan
-  uses: CodeThreat/codethreat-appsec-github-action@v1
+  uses: CodeThreat/codethreat-appsec-github-action@master
   with:
     # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
@@ -140,7 +140,7 @@ jobs:
 ```yaml
 - name: CodeThreat Security Scan
   id: codethreat
-  uses: CodeThreat/codethreat-appsec-github-action@v1
+  uses: CodeThreat/codethreat-appsec-github-action@master
   with:
     # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
@@ -164,7 +164,7 @@ jobs:
 ```yaml
 - name: CodeThreat Security Scan
   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-  uses: CodeThreat/codethreat-appsec-github-action@v1
+  uses: CodeThreat/codethreat-appsec-github-action@master
   with:
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
     scan-types: 'sast,sca,secrets,iac'
@@ -177,7 +177,7 @@ jobs:
 ```yaml
 - name: CodeThreat Security Scan
   id: security-scan
-  uses: CodeThreat/codethreat-appsec-github-action@v1
+  uses: CodeThreat/codethreat-appsec-github-action@master
   with:
     # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}
@@ -263,7 +263,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: CodeThreat Security Scan
-        uses: CodeThreat/codethreat-appsec-github-action@v1
+        uses: CodeThreat/codethreat-appsec-github-action@master
         with:
           # Required
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
@@ -289,7 +289,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: CodeThreat/codethreat-appsec-github-action@v1
+      - uses: CodeThreat/codethreat-appsec-github-action@master
         with:
           api-key: ${{ secrets.CODETHREAT_DEV_API_KEY }}
           server-url: ${{ secrets.CODETHREAT_DEV_URL }}
@@ -300,7 +300,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: CodeThreat/codethreat-appsec-github-action@v1
+      - uses: CodeThreat/codethreat-appsec-github-action@master
         with:
           api-key: ${{ secrets.CODETHREAT_PROD_API_KEY }}
           scan-types: 'sast,sca,secrets,iac'
@@ -334,7 +334,7 @@ Enable debug logging by adding to your workflow:
 
 ```yaml
 - name: CodeThreat Security Scan
-  uses: CodeThreat/codethreat-appsec-github-action@v1
+  uses: CodeThreat/codethreat-appsec-github-action@master
   with:
     # Required
     api-key: ${{ secrets.CODETHREAT_API_KEY }}

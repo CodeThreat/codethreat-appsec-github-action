@@ -27,7 +27,7 @@ jobs:
       
       - name: CodeThreat Security Scan
         id: codethreat
-        uses: CodeThreat/codethreat-appsec-github-action@v1
+        uses: CodeThreat/codethreat-appsec-github-action@master
         with:
           # Authentication
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
