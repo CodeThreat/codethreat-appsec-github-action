@@ -3,9 +3,9 @@ node_modules/
 npm-debug.log*
 
 # Build outputs
-lib/
 *.tsbuildinfo
 # Note: dist/ is intentionally NOT ignored for GitHub Actions
+# Note: src/lib/ should be tracked for collaboration
 
 # IDE
 .vscode/

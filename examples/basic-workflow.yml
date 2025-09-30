@@ -27,14 +27,9 @@ jobs:
         with:
           # Required
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
-          server-url: ${{ secrets.CODETHREAT_SERVER_URL }}  # e.g., 'http://localhost:3000' or your server
+          server-url: ${{ secrets.CODETHREAT_SERVER_URL }}  # e.g., 'https://api.codethreat.com'
+          organization-slug: ${{ secrets.CODETHREAT_ORG_SLUG }}  # Your organization slug
           github-token: ${{ secrets.GITHUB_TOKEN }}  # Required for SARIF upload
-          
-          # Optional - customize as needed
-          scan-types: 'sast,sca,secrets'
-          fail-on-critical: true
-          fail-on-high: false
-          timeout: 30
           
           # GitHub Security tab integration
           upload-sarif: true

@@ -1,15 +1,14 @@
 # CodeThreat GitHub Action
 
-A GitHub Action for integrating CodeThreat security scanning into your CI/CD workflows. This action uses the **CodeThreat CLI** as the unified interface, ensuring consistent behavior and on-premises compatibility. Results are automatically uploaded to GitHub's Security tab.
+A GitHub Action for integrating CodeThreat security scanning into your CI/CD workflows. This action uses the **CodeThreat CLI as a dependency**, ensuring consistent behavior, faster execution, and better security. Results are automatically uploaded to GitHub's Security tab.
 
 ## Features
 
-- 🔧 **CLI-Based**: Uses CodeThreat CLI for consistent, reliable operation
+- 🚀 **Dependency-Based Architecture**: CLI imported as npm package (no external installation)
 - 🔍 **Comprehensive Security Scanning**: SAST, SCA, Secrets, and IaC analysis
 - 🤖 **AI-Powered Analysis**: False positive elimination and intelligent insights
 - 📊 **GitHub Integration**: Automatic SARIF upload to GitHub Security tab
-- ⚡ **Smart Installation**: Automatic CLI installation with multi-architecture support
-- 🏢 **On-Premises Ready**: Binary distribution for air-gapped environments
+- ⚡ **Fast & Secure**: No network calls for CLI installation, always uses latest version
 - 🛡️ **Build Protection**: Configurable failure conditions for CI/CD
 - 📈 **Detailed Reporting**: Multiple output formats (SARIF, JSON, XML, CSV)
 
@@ -39,11 +38,12 @@ jobs:
           # Required
           api-key: ${{ secrets.CODETHREAT_API_KEY }}
           server-url: ${{ secrets.CODETHREAT_SERVER_URL }}
+          organization-slug: ${{ secrets.CODETHREAT_ORG_SLUG }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           
           # Optional
-          scan-types: 'sast,sca,secrets'
           upload-sarif: true
+          wait-for-completion: true
 ```
 
 ## Inputs
@@ -53,28 +53,30 @@ jobs:
 | Input | Description | Example |
 |-------|-------------|---------|
 | `api-key` | CodeThreat API key | `${{ secrets.CODETHREAT_API_KEY }}` |
+| `server-url` | CodeThreat server URL | `${{ secrets.CODETHREAT_SERVER_URL }}` |
+| `organization-slug` | Organization slug (from org settings) | `${{ secrets.CODETHREAT_ORG_SLUG }}` |
 
 ### Optional
 
 | Input | Description | Default | Example |
 |-------|-------------|---------|---------|
-| `server-url` | CodeThreat server URL | `https://app.codethreat.com` | `https://your-server.com` |
-| `organization-id` | CodeThreat organization ID | Auto-detected | `org-123` |
 | `repository-url` | Repository URL to scan | Current repository | `https://github.com/user/repo.git` |
 | `branch` | Branch to scan | Current branch | `main` |
-| `scan-types` | Scan types (comma-separated) | `sast,sca,secrets` | `sast,sca,secrets,iac` |
 | `wait-for-completion` | Wait for scan completion | `true` | `false` |
-| `timeout` | Scan timeout in minutes | `30` | `45` |
-| `poll-interval` | Status polling interval (seconds) | `10` | `15` |
+| `timeout` | Scan timeout in seconds | `43200` (12 hours) | `7200` (2 hours) |
+| `poll-interval` | Status polling interval (seconds) | `30` | `60` |
 | `output-format` | Output format | `sarif` | `json`, `csv`, `xml`, `junit` |
 | `output-file` | Output file name | `codethreat-results.sarif` | `security-report.json` |
 | `upload-sarif` | Upload SARIF to GitHub Security | `true` | `false` |
-| `fail-on-critical` | Fail on critical vulnerabilities | `true` | `false` |
+| `fail-on-critical` | Fail on critical vulnerabilities | `false` | `true` |
 | `fail-on-high` | Fail on high severity vulnerabilities | `false` | `true` |
 | `max-violations` | Max violations before failing | `0` (no limit) | `50` |
+
+> **Note:** By default, builds will not fail based on vulnerabilities. Set `fail-on-critical: true` or `fail-on-high: true` to enforce security gates in your CI/CD pipeline.
 | `skip-import` | Skip import if repo exists | `true` | `false` |
 | `verbose` | Enable verbose logging | `false` | `true` |
-| `cli-version` | CodeThreat CLI version | `latest` | `1.0.0` |
+
+> **Note:** Scan types (SAST, SCA, Secrets, IaC) are automatically determined by your organization's configuration in CodeThreat. This ensures consistency across all CI/CD platforms.
 
 ## Outputs
 

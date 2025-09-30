@@ -13,9 +13,9 @@ inputs:
   server-url:
     description: 'CodeThreat server URL'
     required: true
-  organization-id:
-    description: 'CodeThreat organization ID'
-    required: false
+  organization-slug:
+    description: 'CodeThreat organization slug (required - found in organization settings)'
+    required: true
 
   # Repository configuration
   repository-url:
@@ -28,22 +28,18 @@ inputs:
     default: ${{ github.ref_name }}
 
   # Scan configuration
-  scan-types:
-    description: 'Scan types to run (comma-separated: sast,sca,secrets,iac)'
-    required: false
-    default: 'sast,sca,secrets'
   wait-for-completion:
     description: 'Wait for scan completion before proceeding'
     required: false
     default: 'true'
   timeout:
-    description: 'Scan timeout in minutes'
+    description: 'Scan timeout in seconds (default: 43200 = 12 hours)'
     required: false
-    default: '30'
+    default: '43200'
   poll-interval:
     description: 'Status polling interval in seconds'
     required: false
-    default: '10'
+    default: '30'
 
   # Output configuration
   output-format:
@@ -63,7 +59,7 @@ inputs:
   fail-on-critical:
     description: 'Fail the build if critical vulnerabilities are found'
     required: false
-    default: 'true'
+    default: 'false'
   fail-on-high:
     description: 'Fail the build if high severity vulnerabilities are found'
     required: false
@@ -82,10 +78,6 @@ inputs:
     description: 'Enable verbose logging'
     required: false
     default: 'false'
-  cli-version:
-    description: 'CodeThreat CLI version to use'
-    required: false
-    default: 'latest'
   github-token:
     description: 'GitHub token for SARIF upload (pass secrets.GITHUB_TOKEN)'
     required: false
