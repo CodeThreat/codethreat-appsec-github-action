@@ -329,8 +329,12 @@ var CodeThreatApiClient = class {
       repositoryId: options.repositoryId,
       organizationSlug,
       scanTypes: options.scanTypes,
-      wait: false
+      wait: false,
       // ALWAYS false - we do client-side polling to avoid serverless timeouts
+      timeout: 1800,
+      // Send to backend (required by validation) but not used for polling
+      pollInterval: 10
+      // Send to backend (required by validation) but not used for polling
     };
     if (options.branch) requestBody.branch = options.branch;
     if (options.scanTrigger) requestBody.scanTrigger = options.scanTrigger;
